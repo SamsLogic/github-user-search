@@ -78,7 +78,7 @@ docker build -t github-repo:v1 .
 
 2. run a container for this image
 ```
-docker run -d github-repo:v1
+docker run -d -p 80:5000 -v ~/github-user-search/logs:/app/logs --env-file ~/github-user-search/config/.env github:v1
 ```
 
 3. Your api is up, you can hit the api and get your results.
