@@ -46,6 +46,55 @@ curl --location 'http://ec2-54-153-3-47.us-west-1.compute.amazonaws.com/api/v0.1
     "project": "github-users-all-old"
 }'
 
+## Using pretrained embeddings model (Default)
+
+### Overview
+
+For this approach, i am using sbert pretrained model - `all-MiniLM-L6-v2` which has been trained on StackExchange dataset as well. To start, i am embedding the textual and code components extracted from the repo files and then aggregrating the embeddings using the l1 distance/Manhatan distance to get the centroid of the embeddings assuming the embeddings are part of a cluster where each repo is a cluster and the repo's collective embedding is the centroid of the text and code component embeddings
+
+### Advantages
+
+1. Much better results
+2. Good results without finetuning or training
+3. Easy to deploy
+4. Low text preprocessing required
+
+### Disadvantages
+
+1. Slow embedding generation on CPUs
+2. Less explinabale
+
+### Further steps
+
+1. Adding cross-encoders for reranking of the top n repos
+2. Trying out larger models and using GPUs instead of inferencing
+
+## Using FastText + TF_IDF vectorizer model
+
+### Overview
+
+For this approach i am training a FastText model on word embeddings of each component of code and text. These word embeddings give me an embedding array of each word. Then performing TF-IDF on the whole dorpus to identify the weight of each word in the corpus which is used to get a weighted average repo embeddings averaged over the weighted sum of the word embeddings of each sentence. Below is the mathematical representation of the same.
+
+$$ \text{avg}(\text{avg} (\text{wordembeddings} \times \text{tfidfwordweight})) $$
+
+### Advantages
+
+1. Faster embedding generation
+2. Much more explainable
+
+### Disadvantages
+
+1. Finding the best approach to get repo embeddings
+2. The results are not promosing
+
+## Challenges faced in development
+
+Some of the major challenges are,
+1. Extracting selected code blocks from source code for multiple languages
+2. Identifying the right approach for repo embeddings
+3. Saving the huge corpus of embeddings and fecthin only selected embeddings without overflowing the memory
+4. Using TF_IDF and FastText word embeddings together and generating repo embeddings
+
 ## Setup
 
 1. First clone this repo-
@@ -102,47 +151,3 @@ pip install -r requirements.txt
 ```terminal
 python app.py
 ```
-
-## Using pretrained embeddings model
-
-### Overview
-
-For this approach, i am using sbert pretrained model - all-MiniLM-L6-v2 which has been trained on StackExchange dataset as well. To start, i am embedding the textual and code components extracted from the repo files and then aggregrating the embeddings using the l1 distance/Manhatan distance to get the centroid of the embeddings assuming the embeddings are part of a cluster where each repo is a cluster and the repo's collective embedding is the centroid of the text and code component embeddings
-
-### Advantages
-
-1. Much better results
-2. Good results without finetuning or training
-3. Easy to deploy
-4. Low text preprocessing required
-
-### Disadvantages
-
-1. Slow embedding generation on CPUs
-2. Less explinabale
-
-## Using FastText + TF_IDF vectorizer model
-
-### Overview
-
-For this approach i am training a FastText model on word embeddings of each component of code and text. These word embeddings give me an embedding array of each word. Then performing TF-IDF on the whole dorpus to identify the weight of each word in the corpus which is used to get a weighted average repo embeddings averaged over the weighted sum of the word embeddings of each sentence. Below is the mathematical representation of the same.
-
-$$ \text{avg}(\text{avg} (\text{word\_embed} \times \text{tfidf\_word\_weight})) $$
-
-### Advantages
-
-1. Faster embedding generation
-2. Much more explainable
-
-### Disadvantages
-
-1. Getting embeddings for code and text components together could be fatal
-2. Finding the best approach to get repo embeddings
-
-## Challenges faced in development
-
-Some of the major challenges are,
-1. Extracting selected code blocks from source code for multiple languages
-2. Identifying the right approach for repo embeddings
-3. Saving the huge corpus of embeddings and fecthin only selected embeddings without overflowing the memory
-4. Using TF_IDF and FastText word embeddings together and generating repo embeddings
