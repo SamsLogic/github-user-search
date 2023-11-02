@@ -38,6 +38,7 @@ Tasks required to be performed:
 
 To try out the apis run the below curl command
 
+```terminal
 curl --location 'http://ec2-54-153-3-47.us-west-1.compute.amazonaws.com/api/v0.1/repo/repo' \
 --header 'Content-Type: application/json' \
 --header 'Content-Type: application/json' \
@@ -45,6 +46,7 @@ curl --location 'http://ec2-54-153-3-47.us-west-1.compute.amazonaws.com/api/v0.1
     "query": "computer vision and deep learning based project",
     "project": "github-users-all-old"
 }'
+```
 
 ## Using pretrained embeddings model (Default)
 
