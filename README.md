@@ -77,6 +77,7 @@ source venv/bin/activate
 2. Install dependencies
 ```terminal
 pip install -r requirements.txt
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
 ```
 
 3. run python app
