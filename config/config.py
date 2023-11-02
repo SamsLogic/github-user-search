@@ -2,7 +2,8 @@ import os
 import sys
 from dotenv import load_dotenv
 
-load_dotenv(override=True)
+if os.environ.get("LOAD_ENV") == "1":
+    load_dotenv(override=True)
 
 BASE_PATH = os.environ.get('BASE_PATH', '')
 GITHUB_API_KEY = os.environ.get('GITHUB_API_KEY', None)
