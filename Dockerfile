@@ -4,8 +4,8 @@ WORKDIR /app
 
 COPY requirements.txt .
 
-RUN pip install -r requirements.txt
 RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+RUN pip install -r requirements.txt
 RUN python -c "from sentence_transformers import SentenceTransformer;model = SentenceTransformer('all-MiniLM-L6-v2')"
 
 ENV PYTHONUNBUFFERED=1
