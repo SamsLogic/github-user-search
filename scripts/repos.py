@@ -61,11 +61,7 @@ class getRepos():
             repo_data = repo_data.fillna('')
             repo_data['strings'] = repo_data['text_strings'] + repo_data['code_strings']
             self.repo_logger.info(f'Getting top 3 text score for explaintation for {user_repo}')
-            if self.embedder.old:
-                repo_comp_embeds = [self.embedder.embed_query(i) for i in repo_data['strings'].tolist()]
-                repo_comp_args, _ = self.embedder.get_top_n_local(top_n=3, indices=repo_data.index.tolist(), embed_type='all', embeds = repo_comp_embeds)
-            else:
-                repo_comp_args, _ = self.embedder.get_top_n_local(top_n=3, indices=repo_data.index.tolist(), embed_type='all')
+            repo_comp_args, _ = self.embedder.get_top_n_local(top_n=3, indices=repo_data.index.tolist(), embed_type='all')
             repo_comp_args = repo_data.iloc[repo_comp_args].reset_index(drop=True)
             explaination = self.llm.get_explaination(repo_comp_args, self.input_query, repo_data['filename'].tolist())
             
@@ -75,15 +71,10 @@ class getRepos():
             repo_data = repo_data[repo_data['code_strings'] != '']
             self.repo_logger.info(f'Getting top 2 code snippets for {user_repo}')
             if len(repo_data) > 0:
-                if self.embedder.old:
-                    repo_comp_embeds = [self.embedder.embed_query(i) for i in repo_data['code_strings'].tolist()]
-                    repo_comp_args, snippet_score = self.embedder.get_top_n_local(top_n=2, indices=repo_data.index.tolist(), embed_type='all', embeds=repo_comp_embeds)
-                else:
-                    repo_comp_args, snippet_score = self.embedder.get_top_n_local(top_n=2, indices=repo_data.index.tolist(), embed_type='all')
+                repo_comp_args, snippet_score = self.embedder.get_top_n_local(top_n=2, indices=repo_data.index.tolist(), embed_type='all')
                 repo_comp_args = repo_data.iloc[repo_comp_args].reset_index(drop=True)
                 repo_comp_args['snippet_score'] = snippet_score
                 repo_data_output = {ind:{"filename":i['filename'], "code":i['code'], "score":i['snippet_score']} for ind, i in repo_comp_args[['filename', 'code', 'snippet_score']].iterrows()}
-            
             else:
                 repo_data_output = {0:{"filename": "NA", "code":"NA", "score": "NA"}}
             output[ind]['code_snippet'] = repo_data_output

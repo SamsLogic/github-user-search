@@ -18,10 +18,9 @@ class githubReader():
         self.preprocessor = preprocessor(project=project)
         if old:
             self.embedder = old_embedder(project=project)
-            self.embed_col = 'strings'
         else:
             self.embedder = embedder(project=project)
-            self.embed_col = 'data'
+        self.embed_col = 'data'
         self.upload_logger = CustomAdapterUpload(logger, {'project': project})
         self.upload_logger.info('Reading data from excel')
         if data_path is not None:
@@ -113,6 +112,10 @@ class githubReader():
         data['file_lang'] = data['filename'].apply(lambda x: self.language_map[x.split('.')[-1]] if x.split('.')[-1] in self.language_map else '')
         return data
 
+    def update_status(self, status):
+        with open(f"status_{self.project}.txt", "w") as f:
+            f.write(status)
+
     def get_user_github_data(self) -> pd.DataFrame:
 
         if os.path.exists(f'data/{self.project}_data.xlsx'):
@@ -123,11 +126,14 @@ class githubReader():
             if self.user_data is None:
                 user_data = []
                 code_data = []
-                for username in self.users:
+                self.update_status(f"0 out {len(self.users)} completed")
+                for ind, username in enumerate(self.users, start=1):
                     self.upload_logger.debug(f'Getting data for {username}')
                     files, code_data_temp = self.__get_code_and_markdown_files(username)
                     user_data.extend(files)
                     code_data.extend(code_data_temp)
+                    self.update_status(f"{ind} out {len(self.users)} completed")
+                    
                 user_data = pd.DataFrame(user_data)
                 user_data['code_data'] = code_data
                 self.user_data = user_data.map(lambda x: x.encode('unicode_escape').decode('utf-8') if isinstance(x, str) else x)
@@ -143,7 +149,10 @@ class githubReader():
 
         self.user_data['strings'] = self.user_data['text_strings'] + self.user_data['code_strings']
         self.upload_logger.info('Embedding data')
+        self.update_status(f"Embedding data")
         self.embedder.embed(self.user_data, self.embed_col)
+        self.update_status(f"Embedding calculated")
+        self.upload_logger.info('Embedding calculated')
         return True
 
 if __name__ == '__main__':
