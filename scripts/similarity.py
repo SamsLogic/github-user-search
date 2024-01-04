@@ -10,7 +10,7 @@ pinecone.init(api_key=PINECONE_KEY, environment="gcp-starter")
 
 class getSimilar():
     def __init__(self, project, execution_id, input_query, save=False):
-        if f'tfidf_{project}.pkl' in os.listdir('models'):
+        if f'all_embeds_{project}.model' in os.listdir('models'):
             self.old = True
         else:
             self.old = False
@@ -50,6 +50,7 @@ class getSimilar():
                     embeds = np.expand_dims(embeds, axis=0)
             
         self.similar_logger.info(f'Getting scores')
+        print(np.array(embeds).shape, np.array(self.query_embed).shape)
         scores = np.dot(embeds, self.query_embed.T)
 
         self.similar_logger.info(f'Getting top n score args')
