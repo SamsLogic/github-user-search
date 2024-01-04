@@ -142,6 +142,7 @@ class githubReader():
                 self.user_data.to_excel(f'data/{self.project}_data.xlsx')
 
         self.user_data['strings'] = self.user_data['text_strings'] + self.user_data['code_strings']
+        self.upload_logger.info('Embedding data')
         self.embedder.embed(self.user_data, self.embed_col)
         return True
 
